@@ -9,7 +9,13 @@ package com.almasb.fxglgames.drop;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.core.math.FXGLMath;
+import com.almasb.fxgl.dsl.components.HealthIntComponent;
+import com.almasb.fxgl.dsl.components.ProjectileComponent;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.input.UserAction;
+import com.almasb.fxglgames.drop.Components.PlayerComponent;
+import javafx.geometry.Point2D;
+import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -37,73 +43,125 @@ public class DropApp extends GameApplication {
      * Types of entities in this game.
      */
     public enum Type {
-        DROPLET, BUCKET
+        ENEMY, BUILDING
     }
+
+    private Entity player;
+
+    private PlayerComponent playerComponent;
 
     @Override
     protected void initSettings(GameSettings settings) {
         // initialize common game / window settings.
-        settings.setTitle("Drop");
+        settings.setTitle("Zombs");
         settings.setVersion("1.0");
-        settings.setWidth(480);
-        settings.setHeight(800);
+        settings.setWidth(1000);
+        settings.setHeight(1000);
     }
+
+
+
+
 
     @Override
     protected void initGame() {
-        spawnBucket();
+        getGameWorld().addEntityFactory(new gameFactory());
+        player = spawn("Player");
 
-        // creates a timer that runs spawnDroplet() every second
-        run(() -> spawnDroplet(), Duration.seconds(1));
+        run(() -> spawn("Drops"), Duration.seconds(1));
 
-        // loop background music located in /resources/assets/music/
-        loopBGM("bgm.mp3");
+        playerComponent = player.getComponent(PlayerComponent.class);
+//        player.rota
+//        loopBGM("bgm.mp3");
+    }
+    @Override
+    protected void initInput(){
+        getInput().addAction(new UserAction("Left"){
+            @Override
+            protected void onAction(){
+                player.getComponent(PlayerComponent.class).left();
+            }
+            @Override
+            protected void onActionEnd(){
+                player.getComponent(PlayerComponent.class).stop();
+            }
+        }, KeyCode.A);
+
+        getInput().addAction(new UserAction("Right"){
+            @Override
+            protected void onAction(){
+                player.getComponent(PlayerComponent.class).right();
+            }
+
+            @Override
+            protected void onActionEnd(){
+                player.getComponent(PlayerComponent.class).stop();
+            }
+
+        }, KeyCode.D);
+
+        getInput().addAction(new UserAction("Down"){
+            @Override
+            protected void onAction(){
+                player.getComponent(PlayerComponent.class).down();
+            }
+            @Override
+            protected void onActionEnd(){
+                player.getComponent(PlayerComponent.class).stop();
+            }
+        }, KeyCode.S);
+
+        getInput().addAction(new UserAction("Up"){
+            @Override
+            protected void onAction(){
+                player.getComponent(PlayerComponent.class).up();
+            }
+            @Override
+            protected void onActionEnd(){
+                player.getComponent(PlayerComponent.class).stop();
+            }
+        }, KeyCode.W);
     }
 
     @Override
     protected void initPhysics() {
-        onCollisionBegin(Type.BUCKET, Type.DROPLET, (bucket, droplet) -> {
+        onCollisionBegin(Type.BUILDING, Type.ENEMY, (bucket, droplet) -> {
 
             // code in this block is called when there is a collision between Type.BUCKET and Type.DROPLET
-
             // remove the collided droplet from the game
             droplet.removeFromWorld();
 
             // play a sound effect located in /resources/assets/sounds/
             play("drop.wav");
+
+            var hp = bucket.getComponent(HealthIntComponent.class);
+
+            System.out.println(hp.getValue());
+            if (hp.getValue() > 1){
+                hp.damage(1);
+                return;
+            }
+            bucket.removeFromWorld();
+
         });
     }
 
     @Override
     protected void onUpdate(double tpf) {
-
-        // for each entity of Type.DROPLET translate (move) it down
-        getGameWorld().getEntitiesByType(Type.DROPLET).forEach(droplet -> droplet.translateY(150 * tpf));
     }
 
-    private void spawnBucket() {
-        // build an entity with Type.BUCKET
-        // at the position X = getAppWidth() / 2 and Y = getAppHeight() - 200
-        // with a view "bucket.png", which is an image located in /resources/assets/textures/
-        // also create a bounding box from that view
-        // make the entity collidable
-        // finally, complete building and attach to the game world
 
-        Entity bucket = entityBuilder()
-                .type(Type.BUCKET)
-                .at(getAppWidth() / 2, getAppHeight() - 200)
-                .viewWithBBox("bucket.png")
-                .collidable()
-                .buildAndAttach();
-
-        // bind bucket's X value to mouse X
-        bucket.xProperty().bind(getInput().mouseXWorldProperty());
-    }
 
     private void spawnDroplet() {
+        int xval = FXGLMath.random(0, getAppWidth() - 64);
+        int yval = 0;
+        int targetx = 200;
+        int targety = 200;
+        System.out.println(xval);
         entityBuilder()
-                .type(Type.DROPLET)
-                .at(FXGLMath.random(0, getAppWidth() - 64), 0)
+                .type(Type.ENEMY)
+                .at(xval, yval)
+                .with(new ProjectileComponent(new Point2D((int) (targetx - xval), (int) (targety - yval)), 150))
                 .viewWithBBox("droplet.png")
                 .collidable()
                 .buildAndAttach();
