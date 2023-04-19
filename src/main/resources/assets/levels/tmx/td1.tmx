@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.0" orientation="orthogonal" renderorder="right-down" width="25" height="14" tilewidth="64" tileheight="64" infinite="0" nextlayerid="9" nextobjectid="31">
+ <tileset firstgid="1" name="td_tilesheet" tilewidth="64" tileheight="64" tilecount="299" columns="23">
+  <image source="td_tilesheet.png" trans="ffffff" width="1472" height="832"/>
+ </tileset>
+ <layer id="1" name="ground" class="towerBase" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxrYmBgaBoAPG+A7B3Fo3gUj+KBxgAPmLHZ
+  </data>
+ </layer>
+ <layer id="3" name="decor" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYKAOECFCjRiV7BoF+IEYA/6wHuh4GGj7iQWiA+0AMsF9NIwOyPEXsp6NWOSxiVFiL7l2kALoYQcuAACppQh5
+  </data>
+ </layer>
+ <layer id="6" name="Resources" width="25" height="14">
+  <data encoding="base64" compression="zlib">
+   eJxjYKAP6MTBxidGSL6ZfOcQpR+Xmyh1CzFqSTGPUNgRaya6OZSGLz6zYebjsoNYu/H5nRyzkc1DV0esPlLsowYgNv6xAUrcRom9lLoBXzyhu2sg4waXXQAh9hNW
+  </data>
+ </layer>
+</map>
